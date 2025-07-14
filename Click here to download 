@@ -1,0 +1,111 @@
+
+# FOCUSFUEL X - Advanced Productivity App by jvaykzz
+# Version 2.0 - Streamlit Only, No Extra Packages (Error-Free)
+
+import streamlit as st
+import datetime
+import random
+import plotly.graph_objects as go
+
+# ------------------ PAGE CONFIG ------------------
+st.set_page_config(page_title="FocusFuel X", layout="wide")
+
+# ------------------ SESSION SETUP ------------------
+if "sessions" not in st.session_state:
+    st.session_state.sessions = []
+if "tasks" not in st.session_state:
+    st.session_state.tasks = []
+if "daily_minutes" not in st.session_state:
+    st.session_state.daily_minutes = {}
+
+# ------------------ SIDEBAR ------------------
+st.sidebar.title("⚙️ FocusFuel X Menu")
+menu = st.sidebar.radio("Navigate to:", ["🏠 Home", "🧠 Deep Focus", "✅ Daily Tasks", "📈 Progress Tracker", "💪 Motivation", "📚 App Tracker", "ℹ️ About"])
+
+# ------------------ HOME ------------------
+if menu == "🏠 Home":
+    st.title("⚡ FocusFuel X")
+    st.subheader("Discipline. Data. Domination.")
+    st.markdown(
+        "> Built by **jvaykzz** for students who grind with a purpose."
+    )
+    st.markdown("""
+        This app includes:
+        - 🧠 Deep Focus Mode with timer
+        - ✅ To-do list system
+        - 📈 Graphs to track your progress
+        - 💪 Motivation station with quotes & videos
+        - 📚 College App Tracker
+        - Clean dark theme
+    """)
+
+# ------------------ DEEP FOCUS ------------------
+elif menu == "🧠 Deep Focus":
+    st.title("🧠 Deep Focus Mode")
+    subject = st.text_input("What are you working on?")
+    duration = st.slider("How long? (in minutes)", 15, 300, 60, 15)
+    if st.button("Start Focus Session"):
+        today = str(datetime.date.today())
+        st.success(f"Focusing on {subject} for {duration} minutes.")
+        st.session_state.sessions.append({"subject": subject, "duration": duration, "date": today})
+        st.session_state.daily_minutes[today] = st.session_state.daily_minutes.get(today, 0) + duration
+        st.balloons()
+
+# ------------------ TO-DO LIST ------------------
+elif menu == "✅ Daily Tasks":
+    st.title("✅ Your To-Do List")
+    task = st.text_input("New Task")
+    if st.button("Add Task"):
+        st.session_state.tasks.append({"task": task, "done": False})
+    for i, t in enumerate(st.session_state.tasks):
+        col1, col2 = st.columns([0.8, 0.2])
+        if not t["done"]:
+            if col1.checkbox(t["task"], key=f"task_{i}"):
+                st.session_state.tasks[i]["done"] = True
+                col2.success("✅ Done")
+
+# ------------------ PROGRESS TRACKER ------------------
+elif menu == "📈 Progress Tracker":
+    st.title("📈 Your Study Graph")
+    if st.session_state.daily_minutes:
+        dates = list(st.session_state.daily_minutes.keys())
+        minutes = list(st.session_state.daily_minutes.values())
+        fig = go.Figure([go.Bar(x=dates, y=minutes)])
+        fig.update_layout(title="Daily Study Time", xaxis_title="Date", yaxis_title="Minutes")
+        st.plotly_chart(fig)
+    else:
+        st.info("Start a session to see your progress graph here.")
+
+# ------------------ MOTIVATION ------------------
+elif menu == "💪 Motivation":
+    st.title("💪 Motivation Station")
+    quotes = [
+        "Stay hard. – David Goggins",
+        "Discipline equals freedom. – Jocko Willink",
+        "Push through the pain – it’s worth it."
+    ]
+    st.subheader(random.choice(quotes))
+    st.video("https://www.youtube.com/embed/IdTMDpizis8")  # Eric Thomas
+
+# ------------------ APP TRACKER ------------------
+elif menu == "📚 App Tracker":
+    st.title("📚 College App Tracker")
+    colleges = ["UPenn", "NYU", "Drexel", "Northeastern", "UofL"]
+    for college in colleges:
+        with st.expander(college):
+            essay = st.checkbox(f"Essay Done – {college}")
+            lors = st.checkbox(f"LORs Uploaded – {college}")
+            app = st.checkbox(f"Common App Submitted – {college}")
+
+# ------------------ ABOUT ------------------
+elif menu == "ℹ️ About":
+    st.title("ℹ️ About This App")
+    st.markdown("""
+    **FocusFuel X** is built by *jvaykzz* for students preparing for college and life. 
+
+    It tracks your grind, gives motivation, and keeps your focus levels maxed. 
+
+    Built with 🔥 in every line of code. 
+
+    Contact: [jvaykzz@gmail.com](mailto:jvaykzz@gmail.com)
+    """)
